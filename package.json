@@ -1,0 +1,9 @@
+{
+  "name": "refactor-ts",
+  "version": "0.0.0",
+  "description": "Refactoring utitity for typescript projects.",
+  "main": "dist/index.js",
+  "repository": "https://github.com/TobiasWalle/refactor-ts",
+  "author": "Tobias Walle",
+  "license": "MIT"
+}

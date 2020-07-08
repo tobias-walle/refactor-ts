@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "target": "es5",
+    "module": "commonjs",
+    "lib": ["esnext"],
+    "jsx": "react",
+    "outDir": "./out",
+    "tsBuildInfoFile": "./out",
+    "importHelpers": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

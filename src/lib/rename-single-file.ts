@@ -1,18 +1,21 @@
 import path from 'path';
 import { Node, Project } from 'ts-morph';
-import { changeCasing, detectCasing } from './utils/casing';
+import { changeCase, detectCase } from './utils/casing';
+import { replaceStart } from './utils/replaceStart';
 
 interface RenameFileOptions {
   project: Project;
   filePath: string;
-  newFileName: string;
+  oldName: string,
+  newName: string;
 }
 
-export function renameFile(options: RenameFileOptions): void {
+export async function renameSingleFile(options: RenameFileOptions): Promise<void> {
   const {
     project,
     filePath,
-    newFileName
+    oldName,
+    newName
   } = options;
 
   const sourceFile = project.getSourceFile(filePath);
@@ -20,26 +23,32 @@ export function renameFile(options: RenameFileOptions): void {
     throw new Error(`Couldn't find "${filePath}"`);
   }
   const oldFileName = path.basename(filePath);
-  sourceFile.move(newFileName);
+  const newFileName = replaceStart(oldFileName, oldName, newName);
 
-  const oldFileNameWithoutExt = removeFileExt(oldFileName);
-  const newFileNameWithoutExt = removeFileExt(newFileName);
+  sourceFile.move(newFileName);
 
   const declarations = [
     ...sourceFile.getFunctions(),
+    ...sourceFile.getEnums(),
+    ...sourceFile.getTypeAliases(),
     ...sourceFile.getInterfaces(),
     ...sourceFile.getClasses(),
     ...sourceFile.getVariableDeclarations()
   ]
 
   function replace(value: string): string | null {
-    const nameCasing = detectCasing(value);
-    const oldNameInCasing = changeCasing(oldFileNameWithoutExt, nameCasing);
-    const replacementNameInCasing = changeCasing(newFileNameWithoutExt, nameCasing);
-    if (!value.startsWith(oldNameInCasing)) {
+    const nameCasing = detectCase(value);
+    if (nameCasing == null) {
       return null;
     }
-    return value.replace(oldNameInCasing, replacementNameInCasing);
+    const oldNameInCasing = changeCase(oldName, nameCasing);
+    const replacementNameInCasing = changeCase(newName, nameCasing);
+    const result = value.replace(oldNameInCasing, replacementNameInCasing);
+    if (result === value) {
+      return value.replace(capitalizeFirstChar(oldNameInCasing), capitalizeFirstChar(replacementNameInCasing));
+    } else {
+      return result;
+    }
   }
 
   // Replace declarations
@@ -63,10 +72,12 @@ export function renameFile(options: RenameFileOptions): void {
         node.setLiteralValue(replacementValue);
       }
     }
-  })
+  });
 }
 
-function removeFileExt(fileName: string): string {
-  return fileName.split('.')[0];
+function capitalizeFirstChar(value: string): string {
+  if (value.length === 0) {
+    return value;
+  }
+  return value[0].toUpperCase() + value.slice(1);
 }
-

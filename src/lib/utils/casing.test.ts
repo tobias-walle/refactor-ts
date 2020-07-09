@@ -1,19 +1,19 @@
-import { changeCasing, detectCasing } from './casing';
+import { changeCase, detectCase } from './casing';
 
 describe('detectCasing', () => {
   it('should detect the casing of a string', () => {
-    expect(detectCasing('myTestString')).toBe('camelCase');
-    expect(detectCasing('MyTestString')).toBe('PascalCase');
-    expect(detectCasing('my-test-string')).toBe('lisp-case');
-    expect(detectCasing('my_test_string')).toBe('snake_case');
+    expect(detectCase('myTestString')).toBe('camel');
+    expect(detectCase('MyTestString')).toBe('pascal');
+    expect(detectCase('my-test-string')).toBe('kebab');
+    expect(detectCase('my_test_string')).toBe('snake');
   });
 });
 
 describe('changeCasing', () => {
   it('should change casing of a string', () => {
-    expect(changeCasing('myTestString', 'lisp-case')).toBe('my-test-string');
-    expect(changeCasing('myTestString', 'snake_case')).toBe('my_test_string');
-    expect(changeCasing('myTestString', 'PascalCase')).toBe('MyTestString');
-    expect(changeCasing('my-test-string', 'camelCase')).toBe('myTestString');
+    expect(changeCase('myTestString', 'kebab')).toBe('my-test-string');
+    expect(changeCase('myTestString', 'snake')).toBe('my_test_string');
+    expect(changeCase('myTestString', 'pascal')).toBe('MyTestString');
+    expect(changeCase('my-test-string', 'camel')).toBe('myTestString');
   });
 });

@@ -121,4 +121,38 @@ export default externalBookingsReducer;
 
     expect(await getProjectFiles(project)).toEqual(expectedOutput);
   });
+
+  it('should rename a folder with child files', async () => {
+    const inputFiles: Files = {
+      '/src/components/MyComponent/MyComponent.ts': `export const MyComponent = () => 'Test';`,
+      '/src/components/MyComponent/MyComponent.test.ts': `describe('MyComponent', () => {});`,
+      '/src/components/MyComponent/MyComponent.css': `div { color: red }`,
+      '/src/components/OtherComponent/OtherComponent.tsx': `
+import { MyComponent } from '../MyComponent/MyComponent';
+      
+export const OtherComponent = MyComponent();
+      `,
+    };
+    const expectedOutput: Files = {
+      '/src/components/YourComponent/YourComponent.ts': `export const YourComponent = () => 'Test';`,
+      '/src/components/YourComponent/YourComponent.test.ts': `describe('YourComponent', () => {});`,
+      '/src/components/YourComponent/YourComponent.css': `div { color: red }`,
+      '/src/components/OtherComponent/OtherComponent.tsx': `
+import { YourComponent } from '../YourComponent/YourComponent';
+      
+export const OtherComponent = YourComponent();
+      `,
+    };
+    const project = await prepareInMemoryProject(inputFiles);
+
+    await rename({
+      project,
+      fileOrFolderPath: '/src/components/MyComponent',
+      oldName: 'MyComponent',
+      newName: 'YourComponent'
+    });
+    await project.save();
+
+    expect(await getProjectFiles(project)).toEqual(expectedOutput);
+  });
 });

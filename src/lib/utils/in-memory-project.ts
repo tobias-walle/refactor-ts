@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { Project } from 'ts-morph';
 
 export type Files = { [fileName: string]: string }
@@ -8,7 +9,9 @@ export async function prepareInMemoryProject(files: Files): Promise<Project> {
   });
   const fs = project.getFileSystem();
   await Promise.all(
-    Object.entries(files).map(([filePath, fileContent]) => fs.writeFile(filePath, fileContent))
+    Object.entries(files).map(async ([filePath, fileContent]) => {
+      await fs.writeFile(filePath, fileContent);
+    })
   );
   project.addSourceFilesAtPaths(Object.keys(files));
   return project;

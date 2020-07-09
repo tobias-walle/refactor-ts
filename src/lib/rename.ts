@@ -17,6 +17,7 @@ export async function rename(options: RenameOptions) {
   const {
     project,
     fileOrFolderPath,
+    oldName,
     newName
   } = options;
 
@@ -31,20 +32,21 @@ export async function rename(options: RenameOptions) {
   }
 
   if (pathType === 'file') {
-    await renameFile(context);
+    await renameFiles(context, path.dirname(fileOrFolderPath));
+  } else if (pathType === 'dir') {
+    await renameFiles(context, fileOrFolderPath);
+    const directory = project.getDirectory(fileOrFolderPath)!;
+    directory.move(replaceStartOfFileName(fileOrFolderPath, oldName, newName));
   }
-
 }
 
-async function renameFile(context: RenameContext): Promise<void> {
+async function renameFiles(context: RenameContext, parentFolder: string): Promise<void> {
   const {
     project,
-    fileOrFolderPath,
     newName,
     oldName
   } = context;
   const fs = project.getFileSystem();
-  const parentFolder = path.dirname(fileOrFolderPath);
   const relevantFiles = fs.readDirSync(parentFolder).filter(
     f => path.basename(f).startsWith(oldName)
   );

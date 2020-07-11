@@ -1,5 +1,5 @@
 import { renameSingleFile } from './rename-single-file';
-import { Files, getProjectFiles, prepareInMemoryProject } from './utils/in-memory-project';
+import { Files, getProjectFiles, prepareInMemoryProject } from './in-memory-project';
 
 describe('renameSingleFile', () => {
   it('should rename a simple component file', async () => {

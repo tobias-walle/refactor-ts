@@ -1,7 +1,7 @@
 import path from 'path';
 import { Node, Project, SourceFile } from 'ts-morph';
 import { Case, changeCase, detectCase } from './casing';
-import { replaceStart } from './replaceStart';
+import { replaceStart } from './replace-start';
 
 interface RenameFileOptions {
   project: Project;

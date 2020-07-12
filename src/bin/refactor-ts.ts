@@ -2,10 +2,10 @@ import inquirer from 'inquirer';
 import yargs from 'yargs';
 import { changeCasing, ChangeCasingOptions } from '../lib/commands/change-casing';
 import { rename } from '../lib/commands/rename';
-import { openProject } from '../lib/utils/openProject';
+import { openProject } from '../lib/utils/open-project';
 import { pipe } from '../lib/utils/pipe';
-import { setupCommand } from '../lib/utils/resolveCliOptions';
-import { resolvePathIfRelative } from '../lib/utils/resolvePathIfRelative';
+import { setupCommand } from '../lib/utils/resolve-cli-options';
+import { resolvePathIfRelative } from '../lib/utils/resolve-path-if-relative';
 
 inquirer.registerPrompt('fuzzypath', require('inquirer-fuzzy-path'))
 

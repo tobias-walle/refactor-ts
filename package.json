@@ -7,7 +7,8 @@
   "author": "Tobias Walle",
   "license": "MIT",
   "scripts": {
-    "refactor-ts": "ts-node -P tsconfig.json ./src/bin/refactor-ts.ts"
+    "refactor-ts": "ts-node -P tsconfig.json ./src/bin/refactor-ts.ts",
+    "type-check": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/inquirer": "^6.5.0",

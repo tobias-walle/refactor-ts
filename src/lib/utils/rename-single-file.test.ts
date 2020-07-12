@@ -1,5 +1,5 @@
 import { renameSingleFile } from './rename-single-file';
-import { Files, getProjectFiles, prepareInMemoryProject } from './in-memory-project';
+import { Files, getProjectFiles, normalizeFiles, prepareInMemoryProject } from './in-memory-project';
 
 describe('renameSingleFile', () => {
   it('should rename a simple component file', async () => {
@@ -47,6 +47,46 @@ export default Message;
     });
     await project.save();
 
-    expect(await getProjectFiles(project)).toEqual(expectedOutput);
+    expect(await getProjectFiles(project)).toEqual(normalizeFiles(expectedOutput));
+  });
+
+  it('should rename a simple constant', async () => {
+    const inputFiles: Files = {
+      '/src/test.ts': `const test = 'TestValue'`
+    };
+    const expectedOutput: Files = {
+      '/src/newTest.ts': `const newTest = 'NewTestValue'`
+    };
+    const project = await prepareInMemoryProject(inputFiles);
+
+    await renameSingleFile({
+      project,
+      filePath: 'src/test.ts',
+      oldName: 'test',
+      newName: 'newTest'
+    });
+    await project.save();
+
+    expect(await getProjectFiles(project)).toEqual(normalizeFiles(expectedOutput));
+  });
+
+  it('should allow changing the case', async () => {
+    const inputFiles: Files = {
+      '/src/my-test.ts': `const myTest = 'MyTestValue'`
+    };
+    const expectedOutput: Files = {
+      '/src/myTest.ts': `const myTest = 'MyTestValue'`
+    };
+    const project = await prepareInMemoryProject(inputFiles);
+
+    await renameSingleFile({
+      project,
+      filePath: 'src/my-test.ts',
+      oldName: 'my-test',
+      newName: 'myTest'
+    });
+    await project.save();
+
+    expect(await getProjectFiles(project)).toEqual(normalizeFiles(expectedOutput));
   });
 });

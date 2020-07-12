@@ -1,5 +1,5 @@
 import { rename } from './rename';
-import { Files, getProjectFiles, prepareInMemoryProject } from './utils/in-memory-project';
+import { Files, getProjectFiles, normalizeFiles, prepareInMemoryProject } from './utils/in-memory-project';
 
 describe('rename', () => {
   it('should rename a group of files', async () => {
@@ -22,7 +22,7 @@ export type FetchBookingsDefinition = AsyncStateDefinition<
 export const fetchBookingsActions = createActionCreatorsForAsyncState<
   FetchBookingsDefinition
 >(FETCH_BOOKINGS_ACTIONS);
-      `.trim(),
+      `,
 
       '/src/redux/bookings.epic.ts': `
 import {
@@ -39,7 +39,7 @@ const bookingsEpic = createEpicForAsyncState<FetchBookingsDefinition, AppState>(
 );
 
 export default bookingsEpic;
-      `.trim(),
+      `,
 
       '/src/redux/bookings.reducer.ts': `
 import {
@@ -52,7 +52,7 @@ const bookingsReducer = createReducerForAsyncState<FetchBookingsDefinition>(
 );
 
 export default bookingsReducer;
-      `.trim(),
+      `,
 
       '/src/redux/bookingsStyles.css': `div { color: red }`,
     };
@@ -75,7 +75,7 @@ export type FetchExternalBookingsDefinition = AsyncStateDefinition<
 export const fetchExternalBookingsActions = createActionCreatorsForAsyncState<
   FetchExternalBookingsDefinition
 >(FETCH_EXTERNAL_BOOKINGS_ACTIONS);
-      `.trim(),
+      `,
 
       '/src/redux/externalBookings.epic.ts': `
 import {
@@ -92,7 +92,7 @@ const externalBookingsEpic = createEpicForAsyncState<FetchExternalBookingsDefini
 );
 
 export default externalBookingsEpic;
-      `.trim(),
+      `,
 
       '/src/redux/externalBookings.reducer.ts': `
 import {
@@ -105,7 +105,7 @@ const externalBookingsReducer = createReducerForAsyncState<FetchExternalBookings
 );
 
 export default externalBookingsReducer;
-      `.trim(),
+      `,
 
       '/src/redux/externalBookingsStyles.css': `div { color: red }`,
     };
@@ -119,7 +119,7 @@ export default externalBookingsReducer;
     });
     await project.save();
 
-    expect(await getProjectFiles(project)).toEqual(expectedOutput);
+    expect(await getProjectFiles(project)).toEqual(normalizeFiles(expectedOutput));
   });
 
   it('should rename a folder with child files', async () => {
@@ -153,6 +153,6 @@ export const OtherComponent = YourComponent();
     });
     await project.save();
 
-    expect(await getProjectFiles(project)).toEqual(expectedOutput);
+    expect(await getProjectFiles(project)).toEqual(normalizeFiles(expectedOutput));
   });
 });

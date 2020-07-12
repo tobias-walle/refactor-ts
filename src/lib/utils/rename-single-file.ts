@@ -1,6 +1,6 @@
 import path from 'path';
 import { Node, Project } from 'ts-morph';
-import { changeCase, detectCase } from './casing';
+import { Case, changeCase, detectCase } from './casing';
 import { replaceStart } from './replaceStart';
 
 interface RenameFileOptions {
@@ -37,7 +37,7 @@ export async function renameSingleFile(options: RenameFileOptions): Promise<void
   ]
 
   function replace(value: string): string | null {
-    const nameCasing = detectCase(value);
+    const nameCasing = detectCasingOfVariableOrValue(value);
     if (nameCasing == null) {
       return null;
     }
@@ -80,4 +80,18 @@ function capitalizeFirstChar(value: string): string {
     return value;
   }
   return value[0].toUpperCase() + value.slice(1);
+}
+
+function detectCasingOfVariableOrValue(variable: string): Case | null {
+  const casing = detectCase(variable);
+  if (casing === 'lower') {
+    return 'camel';
+  } else if (casing === 'capital') {
+    return 'pascal';
+  } else if (casing === 'upper') {
+    return 'constant';
+  } else if (casing === 'sentence' || casing === 'title' || casing === 'header') {
+    return null;
+  }
+  return casing;
 }

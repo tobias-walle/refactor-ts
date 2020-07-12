@@ -1,6 +1,6 @@
 import inquirer from 'inquirer';
 import yargs from 'yargs';
-import { rename } from '../lib/rename';
+import { rename } from '../lib/commands/rename';
 import { openProject } from '../lib/utils/openProject';
 import { pipe } from '../lib/utils/pipe';
 import { setupCommand } from '../lib/utils/resolveCliOptions';

@@ -1,5 +1,5 @@
 import { rename } from './rename';
-import { Files, getProjectFiles, normalizeFiles, prepareInMemoryProject } from './utils/in-memory-project';
+import { Files, getProjectFiles, normalizeFiles, prepareInMemoryProject } from '../utils/in-memory-project';
 
 describe('rename', () => {
   it('should rename a group of files', async () => {

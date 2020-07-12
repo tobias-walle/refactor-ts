@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { FileSystemHost, Project } from 'ts-morph';
-import { renameSingleFile } from './utils/rename-single-file';
-import { replaceStartOfFileName } from './utils/replaceStartOfFileName';
+import { renameSingleFile } from '../utils/rename-single-file';
+import { replaceStartOfFileName } from '../utils/replaceStartOfFileName';
 
 interface RenameOptions {
   project: Project;

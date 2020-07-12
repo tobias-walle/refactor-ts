@@ -14,6 +14,7 @@ export interface CliParameterOptions<N extends TypeName> {
   promptType?: string;
   alias: string;
   description: string;
+  choices?: string[];
   default?: TypeByName[N];
 }
 
@@ -56,7 +57,8 @@ function configureArgv<O extends OptionsByName>(
         alias: options.alias,
         description: options.description,
         type: options.type,
-        default: options.default
+        default: options.default,
+        choices: options.choices
       }),
       yargs
     );

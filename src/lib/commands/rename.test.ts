@@ -1,6 +1,11 @@
 import { rename } from './rename';
 import { Files, getProjectFiles, normalizeFiles, prepareInMemoryProject } from '../utils/in-memory-project';
 
+const defaultOptions = {
+  includeDeclarations: true,
+  includeStringLiterals: true
+}
+
 describe('rename', () => {
   it('should rename a group of files', async () => {
     const inputFiles: Files = {
@@ -112,6 +117,7 @@ export default externalBookingsReducer;
     const project = await prepareInMemoryProject(inputFiles);
 
     await rename({
+      ...defaultOptions,
       project,
       fileOrFolderPath: '/src/redux/bookings.actions.ts',
       oldName: 'bookings',
@@ -146,10 +152,83 @@ export const OtherComponent = YourComponent();
     const project = await prepareInMemoryProject(inputFiles);
 
     await rename({
+      ...defaultOptions,
       project,
       fileOrFolderPath: '/src/components/MyComponent',
       oldName: 'MyComponent',
       newName: 'YourComponent'
+    });
+    await project.save();
+
+    expect(await getProjectFiles(project)).toEqual(normalizeFiles(expectedOutput));
+  });
+
+  it('should rename without declarations if configured', async () => {
+    const inputFiles: Files = {
+      '/src/components/MyComponent/MyComponent.ts': `export const MyComponent = () => 'Test';`,
+      '/src/components/MyComponent/MyComponent.test.ts': `describe('MyComponent', () => {});`,
+      '/src/components/MyComponent/MyComponent.css': `div { color: red }`,
+      '/src/components/OtherComponent/OtherComponent.tsx': `
+import { MyComponent } from '../MyComponent/MyComponent';
+      
+export const OtherComponent = MyComponent();
+      `,
+    };
+    const expectedOutput: Files = {
+      '/src/components/YourComponent/YourComponent.ts': `export const MyComponent = () => 'Test';`,
+      '/src/components/YourComponent/YourComponent.test.ts': `describe('YourComponent', () => {});`,
+      '/src/components/YourComponent/YourComponent.css': `div { color: red }`,
+      '/src/components/OtherComponent/OtherComponent.tsx': `
+import { MyComponent } from '../YourComponent/YourComponent';
+      
+export const OtherComponent = MyComponent();
+      `,
+    };
+    const project = await prepareInMemoryProject(inputFiles);
+
+    await rename({
+      ...defaultOptions,
+      project,
+      fileOrFolderPath: '/src/components/MyComponent',
+      oldName: 'MyComponent',
+      newName: 'YourComponent',
+      includeDeclarations: false
+    });
+    await project.save();
+
+    expect(await getProjectFiles(project)).toEqual(normalizeFiles(expectedOutput));
+  });
+
+  it('should rename without string literals if configured', async () => {
+    const inputFiles: Files = {
+      '/src/components/MyComponent/MyComponent.ts': `export const MyComponent = () => 'Test';`,
+      '/src/components/MyComponent/MyComponent.test.ts': `describe('MyComponent', () => {});`,
+      '/src/components/MyComponent/MyComponent.css': `div { color: red }`,
+      '/src/components/OtherComponent/OtherComponent.tsx': `
+import { MyComponent } from '../MyComponent/MyComponent';
+      
+export const OtherComponent = MyComponent();
+      `,
+    };
+    const expectedOutput: Files = {
+      '/src/components/YourComponent/YourComponent.ts': `export const YourComponent = () => 'Test';`,
+      '/src/components/YourComponent/YourComponent.test.ts': `describe('MyComponent', () => {});`,
+      '/src/components/YourComponent/YourComponent.css': `div { color: red }`,
+      '/src/components/OtherComponent/OtherComponent.tsx': `
+import { YourComponent } from '../YourComponent/YourComponent';
+      
+export const OtherComponent = YourComponent();
+      `,
+    };
+    const project = await prepareInMemoryProject(inputFiles);
+
+    await rename({
+      ...defaultOptions,
+      project,
+      fileOrFolderPath: '/src/components/MyComponent',
+      oldName: 'MyComponent',
+      newName: 'YourComponent',
+      includeStringLiterals: false
     });
     await project.save();
 

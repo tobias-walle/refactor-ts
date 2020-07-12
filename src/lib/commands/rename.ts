@@ -8,9 +8,8 @@ interface RenameOptions {
   fileOrFolderPath: string;
   oldName: string,
   newName: string;
-}
-
-interface RenameContext extends RenameOptions {
+  includeDeclarations: boolean;
+  includeStringLiterals: boolean;
 }
 
 export async function rename(options: RenameOptions) {
@@ -27,25 +26,23 @@ export async function rename(options: RenameOptions) {
     throw new Error(`Couldn't find "${fileOrFolderPath}"`);
   }
 
-  const context: RenameContext = {
-    ...options,
-  }
-
   if (pathType === 'file') {
-    await renameFiles(context, path.dirname(fileOrFolderPath));
+    await renameFiles(options, path.dirname(fileOrFolderPath));
   } else if (pathType === 'dir') {
-    await renameFiles(context, fileOrFolderPath);
+    await renameFiles(options, fileOrFolderPath);
     const directory = project.getDirectory(fileOrFolderPath)!;
     directory.move(replaceStartOfFileName(fileOrFolderPath, oldName, newName));
   }
 }
 
-async function renameFiles(context: RenameContext, parentFolder: string): Promise<void> {
+async function renameFiles(options: RenameOptions, parentFolder: string): Promise<void> {
   const {
     project,
     newName,
-    oldName
-  } = context;
+    oldName,
+    includeDeclarations,
+    includeStringLiterals
+  } = options;
   const fs = project.getFileSystem();
   const relevantFiles = fs.readDirSync(parentFolder).filter(
     f => path.basename(f).startsWith(oldName)
@@ -56,7 +53,9 @@ async function renameFiles(context: RenameContext, parentFolder: string): Promis
         project,
         filePath: f,
         oldName,
-        newName
+        newName,
+        includeDeclarations,
+        includeStringLiterals
       });
     } catch (e) {
       if (!e.message.includes('Couldn\'t find')) {

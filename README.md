@@ -31,6 +31,7 @@ I would recommend the use of the interactive prompt, because it provides useful 
 The following commands are available right now:
 
 - [rename](#rename) Rename a file or its folder, including surrounding files and it's content.
+- [change-chasing](#change-casing) Change the casing of the included files. For example from kebab case (my-file.ts) to pascal case (MyFile.ts).
 
 
 ### rename
@@ -81,6 +82,42 @@ src
 ```
 
 All symbols in the files containing `Counter`, including all it's usages, will be replaced as well.
+
+### change-casing
+Change the casing of the included files.
+
+For example if we have the following structure with inconsistent casing:
+
+```
+src
+|-- utils
+    |-- myFunction.ts
+    |-- myFunction.test.ts
+|-- components
+    |-- positiveCounter
+        |-- PositiveCounter.tsx
+        |-- positive-counter.test.tsx
+```
+
+We could fix it with the command:
+
+```
+refactor-ts change-casing --folder src --casing kebab
+```
+
+The result would be:
+
+```
+src
+|-- utils
+    |-- my-function.ts
+    |-- my-function.test.ts
+|-- components
+    |-- positive-counter
+        |-- positive-counter.tsx
+        |-- positive-counter.test.tsx
+```
+
 
 ## How does it work?
 Most of the work is done by [ts-morph](https://github.com/dsherret/ts-morph). I provides an excellent Typescript AST

@@ -1,5 +1,5 @@
 import path from 'path';
-import { Node, Project } from 'ts-morph';
+import { Node, Project, SourceFile } from 'ts-morph';
 import { Case, changeCase, detectCase } from './casing';
 import { replaceStart } from './replaceStart';
 
@@ -8,6 +8,12 @@ interface RenameFileOptions {
   filePath: string;
   oldName: string,
   newName: string;
+  includeDeclarations: boolean;
+  includeStringLiterals: boolean
+}
+
+interface RenameFileContext extends RenameFileOptions {
+  sourceFile: SourceFile;
 }
 
 export async function renameSingleFile(options: RenameFileOptions): Promise<void> {
@@ -15,7 +21,9 @@ export async function renameSingleFile(options: RenameFileOptions): Promise<void
     project,
     filePath,
     oldName,
-    newName
+    newName,
+    includeDeclarations,
+    includeStringLiterals
   } = options;
 
   const sourceFile = project.getSourceFile(filePath);
@@ -27,6 +35,26 @@ export async function renameSingleFile(options: RenameFileOptions): Promise<void
 
   sourceFile.move(newFileName);
 
+  const context: RenameFileContext = {
+    ...options,
+    sourceFile,
+  }
+
+  if (includeDeclarations) {
+    replaceDeclarations(context);
+  }
+
+  if (includeStringLiterals) {
+    replaceStringLiterals(context);
+  }
+}
+
+function replaceDeclarations(context: RenameFileContext): void {
+  const {
+    sourceFile,
+    oldName,
+    newName
+  } = context;
   const declarations = [
     ...sourceFile.getFunctions(),
     ...sourceFile.getEnums(),
@@ -35,44 +63,48 @@ export async function renameSingleFile(options: RenameFileOptions): Promise<void
     ...sourceFile.getClasses(),
     ...sourceFile.getVariableDeclarations()
   ]
-
-  function replace(value: string): string | null {
-    const nameCasing = detectCasingOfVariableOrValue(value);
-    if (nameCasing == null) {
-      return null;
-    }
-    const oldNameInCasing = changeCase(oldName, nameCasing);
-    const replacementNameInCasing = changeCase(newName, nameCasing);
-    const result = value.replace(oldNameInCasing, replacementNameInCasing);
-    if (result === value) {
-      return value.replace(capitalizeFirstChar(oldNameInCasing), capitalizeFirstChar(replacementNameInCasing));
-    } else {
-      return result;
-    }
-  }
-
-  // Replace declarations
   declarations.forEach(declaration => {
     const declarationName = declaration.getName();
     if (!declarationName) {
       return;
     }
-    const newName = replace(declarationName);
-    if (newName) {
-      declaration.rename(newName);
+    const newDeclarationName = replaceButPersistCasing(declarationName, oldName, newName);
+    if (newDeclarationName && declarationName != newDeclarationName) {
+      declaration.rename(newDeclarationName);
     }
   });
+}
 
-  // Replace string literals
+function replaceStringLiterals(context: RenameFileContext): void {
+  const {
+    sourceFile,
+    oldName,
+    newName
+  } = context;
   sourceFile.forEachDescendant(node => {
     if (Node.isStringLiteral(node)) {
       const value = node.getLiteralValue();
-      const replacementValue = replace(value);
+      const replacementValue = replaceButPersistCasing(value, oldName, newName);
       if (replacementValue) {
         node.setLiteralValue(replacementValue);
       }
     }
   });
+}
+
+function replaceButPersistCasing(value: string, oldName: string, newName: string): string | null {
+  const nameCasing = detectCasingOfVariableOrValue(value);
+  if (nameCasing == null) {
+    return null;
+  }
+  const oldNameInCasing = changeCase(oldName, nameCasing);
+  const replacementNameInCasing = changeCase(newName, nameCasing);
+  const result = value.replace(oldNameInCasing, replacementNameInCasing);
+  if (result === value) {
+    return value.replace(capitalizeFirstChar(oldNameInCasing), capitalizeFirstChar(replacementNameInCasing));
+  } else {
+    return result;
+  }
 }
 
 function capitalizeFirstChar(value: string): string {

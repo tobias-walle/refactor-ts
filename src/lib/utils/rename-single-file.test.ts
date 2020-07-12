@@ -1,6 +1,11 @@
 import { renameSingleFile } from './rename-single-file';
 import { Files, getProjectFiles, normalizeFiles, prepareInMemoryProject } from './in-memory-project';
 
+const defaultOptions = {
+  includeDeclarations: true,
+  includeStringLiterals: true
+}
+
 describe('renameSingleFile', () => {
   it('should rename a simple component file', async () => {
     const inputFiles: Files = {
@@ -40,6 +45,7 @@ export default Message;
     const project = await prepareInMemoryProject(inputFiles);
 
     await renameSingleFile({
+      ...defaultOptions,
       project,
       filePath: 'src/components/my-component.tsx',
       oldName: 'my-component',
@@ -60,6 +66,7 @@ export default Message;
     const project = await prepareInMemoryProject(inputFiles);
 
     await renameSingleFile({
+      ...defaultOptions,
       project,
       filePath: 'src/test.ts',
       oldName: 'test',
@@ -80,6 +87,7 @@ export default Message;
     const project = await prepareInMemoryProject(inputFiles);
 
     await renameSingleFile({
+      ...defaultOptions,
       project,
       filePath: 'src/my-test.ts',
       oldName: 'my-test',

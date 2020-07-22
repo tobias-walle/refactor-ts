@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import inquirer from 'inquirer';
 import yargs from 'yargs';
 import { changeCasing, ChangeCasingOptions } from '../lib/commands/change-casing';
@@ -96,6 +97,7 @@ pipe(
     }
   })
 )
+  .demandCommand()
   .strict()
   .help()
   .argv;

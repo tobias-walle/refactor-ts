@@ -1,4 +1,5 @@
 # refactor-ts
+[![npm version](https://badge.fury.io/js/refactor-ts.svg)](https://badge.fury.io/js/refactor-ts)
 
 **refactor-ts** is a command line tool that's automates common refactorings in a 
 typescript project. 
